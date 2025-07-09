@@ -232,6 +232,30 @@ def save_scores_to_file(scores, filename="scores.json"):
         json.dump(scores, f, ensure_ascii=False, indent=4)
 
 
+def safe_file_write(filename, content, mode="w", encoding="utf-8"):
+    """
+    安全地写入文件，如果目录不存在则创建
+    参数:
+        filename: 文件名
+        content: 要写入的内容
+        mode: 写入模式
+        encoding: 文件编码
+    """
+    try:
+        # 确保目录存在
+        os.makedirs(
+            os.path.dirname(filename) if os.path.dirname(filename) else ".",
+            exist_ok=True,
+        )
+
+        with open(filename, mode, encoding=encoding) as f:
+            f.write(content)
+        return True
+    except Exception as e:
+        logging.error(f"写入文件 {filename} 失败: {e}")
+        return False
+
+
 def load_scores_from_file(filename="scores.json"):
     """
     从本地文件加载成绩
@@ -239,18 +263,27 @@ def load_scores_from_file(filename="scores.json"):
         filename: 文件名
     返回: 成绩列表
     """
-    if os.path.exists(filename):
-        with open(filename, "r", encoding="utf-8") as f:
-            data = f.read()
-            if data.strip():  # 检查文件是否有数据
-                return json.loads(data)
-            else:
-                logging.info(f"文件 {filename} 为空，初始化为空列表")
-                return []
-    else:
-        logging.error(f"文件 {filename} 不存在，新建空文件")
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write("[]")
+    try:
+        if os.path.exists(filename):
+            with open(filename, "r", encoding="utf-8") as f:
+                data = f.read()
+                if data.strip():  # 检查文件是否有数据
+                    return json.loads(data)
+                else:
+                    logging.info(f"文件 {filename} 为空，初始化为空列表")
+                    return []
+        else:
+            logging.info(f"文件 {filename} 不存在，创建新文件")
+            # 确保目录存在
+            os.makedirs(
+                os.path.dirname(filename) if os.path.dirname(filename) else ".",
+                exist_ok=True,
+            )
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write("[]")
+            return []
+    except Exception as e:
+        logging.error(f"读取文件 {filename} 失败: {e}")
         return []
 
 
@@ -468,16 +501,25 @@ def main():
         # 获取全部学期的总学分和平均绩点
         total_credits, average_gpa = get_all_semester_scores(session, cookies)
         logging.info(f"总学分: {total_credits}, 平均绩点: {average_gpa}")
-        with open("output.txt", "w", encoding="utf-8") as f:
-            f.write(f"总学分: {total_credits}, 平均绩点: {average_gpa}\n")
-        logging.info("总学分和平均绩点数据保存成功")
+
+        # 使用安全的文件写入方法
+        if not safe_file_write(
+            "output.txt", f"总学分: {total_credits}, 平均绩点: {average_gpa}\n"
+        ):
+            logging.error("保存总学分和平均绩点数据失败")
+        else:
+            logging.info("总学分和平均绩点数据保存成功")
 
         # 计算本学期绩点
         credits_and_points = parse_credits_and_gpa(session, cookies)
-        average_gpa = calculate_average_gpa(credits_and_points)
-        logging.info(f"{SEMESTER}平均绩点: {average_gpa}")
-        with open("output.txt", "a", encoding="utf-8") as f:
-            f.write(f"{SEMESTER}平均绩点: {average_gpa}\n")
+        semester_average_gpa = calculate_average_gpa(credits_and_points)
+        logging.info(f"{SEMESTER}平均绩点: {semester_average_gpa}")
+
+        # 追加写入本学期绩点
+        if not safe_file_write(
+            "output.txt", f"{SEMESTER}平均绩点: {semester_average_gpa}\n", mode="a"
+        ):
+            logging.error(f"保存{SEMESTER}平均绩点数据失败")
 
     except Exception as e:
         handle_exception(e, user_account)
