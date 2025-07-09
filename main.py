@@ -279,7 +279,7 @@ def parse_credits_and_gpa(session, cookies):
         html_content: HTML页面内容
     返回: [(学分, 绩点), ...] 的列表
     """
-    url = "http://zhjw.qfnu.edu.cn/jsxsd/kscj/cjcx_list?kksj=2024-2025-1&kcxz=&kcmc=&xsfs=all"
+    url = "http://zhjw.qfnu.edu.cn/jsxsd/kscj/cjcx_list?kksj=2024-2025-2&kcxz=&kcmc=&xsfs=all"
     response = session.get(url, cookies=cookies)
     soup = BeautifulSoup(response.text, "lxml")
     results = []
@@ -470,7 +470,7 @@ def main():
         average_gpa = calculate_average_gpa(credits_and_points)
         logging.info(f"平均绩点: {average_gpa}")
         with open("output.txt", "a", encoding="utf-8") as f:
-            f.write(f"2024-2025-1平均绩点: {average_gpa}")
+            f.write(f"2024-2025-2平均绩点: {average_gpa}")
 
     except Exception as e:
         handle_exception(e, user_account)
