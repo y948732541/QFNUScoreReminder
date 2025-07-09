@@ -64,6 +64,7 @@
 - `DD_BOT_SECRET` 和 `DD_BOT_TOKEN`：钉钉机器人配置的 `webhook` 和 `secret`
 - `FEISHU_BOT_URL` 和 `FEISHU_BOT_SECRET`：飞书机器人配置的 `webhook` 和 `secret`
 - `USER_ACCOUNT` 和 `USER_PASSWORD`：教务系统账号密码
+- `SEMESTER`：学期信息，格式为 `YYYY-YYYY-X`（例如：`2024-2025-2`），默认为 `2024-2025-2`
 
 ### 5. 运行
 
@@ -82,5 +83,6 @@
 - 更新了获取全部学期的总学分和平均绩点
 - 更新了计算本学期绩点
 - 更新了保存成绩和绩点数据
+- 新增 `SEMESTER` 环境变量，用于自定义查询的学期，格式为 `YYYY-YYYY-X`
 
 你可以在 [output.txt](output.txt) 文件中查看成绩和绩点数据。
