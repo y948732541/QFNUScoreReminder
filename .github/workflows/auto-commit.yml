@@ -40,7 +40,7 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
-          git add .
+          git add output.txt scores.json
           if [ -n "$(git status --porcelain)" ]; then
             echo "CHANGES=true" >> $GITHUB_ENV
           fi
@@ -49,4 +49,4 @@ jobs:
         if: env.CHANGES == 'true'
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: 刷新成绩
+          commit_message: 自动更新成绩数据
