@@ -129,8 +129,12 @@ def get_user_credentials():
     """
     user_account = os.getenv("USER_ACCOUNT")
     user_password = os.getenv("USER_PASSWORD")
-    logging.info(f"用户名: {user_account}")
-    logging.info(f"密码: {user_password}")
+    if user_account and user_password:
+        logging.info(f"用户名: {user_account[:2]}{'*' * (len(user_account)-2)}")
+        logging.info(f"密码: {'*' * len(user_password)}")
+    else:
+        logging.error("请在.env文件中设置USER_ACCOUNT和USER_PASSWORD环境变量")
+        return None, None
     return user_account, user_password
 
 
@@ -471,9 +475,9 @@ def main():
         # 计算本学期绩点
         credits_and_points = parse_credits_and_gpa(session, cookies)
         average_gpa = calculate_average_gpa(credits_and_points)
-        logging.info(f"平均绩点: {average_gpa}")
+        logging.info(f"{SEMESTER}平均绩点: {average_gpa}")
         with open("output.txt", "a", encoding="utf-8") as f:
-            f.write(f"{SEMESTER}平均绩点: {average_gpa}")
+            f.write(f"{SEMESTER}平均绩点: {average_gpa}\n")
 
     except Exception as e:
         handle_exception(e, user_account)
